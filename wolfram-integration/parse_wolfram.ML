@@ -63,6 +63,6 @@ struct
     fun parse a = case expression (L.scan a) of
                        (v, []) => v
                        (* ODEs must be represented as a single expression *)
-                     | (_, _::_) => raise SyntaxErr "Extra characters in phrase"
+                     | (_, _::_) => raise SyntaxErr ("Extra characters in phrase: " ^ a)
 end 
 end

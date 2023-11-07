@@ -70,6 +70,43 @@ fun aexp_conv _ (NConst n) = NConst n
 fun sode_conv cnv {ivar = ivar, odes = odes} = 
   {ivar = ivar, odes = Symtab.make (map (fn (x, e) => (case Symtab.lookup cnv x of NONE => x | SOME y => y, aexp_conv cnv e)) (Symtab.dest odes))};
 
+local open Symtab
+in
+
+(* Takes a function f that determines whether to collect a given variable.
+  It is passed a tuple (variable name, is SVar) *)
+fun collect_vars_aux _ (NConst _) = empty |
+    collect_vars_aux f (UOp (_, e)) = collect_vars_aux f e |
+    collect_vars_aux f (BOp (_, e, g)) = merge (fn _ => true) 
+        (collect_vars_aux f e, collect_vars_aux f g) |
+    collect_vars_aux _ (NNat _) = empty | 
+    collect_vars_aux _ (NInt _) = empty |
+    collect_vars_aux _ (NReal _) = empty |
+    collect_vars_aux f (CVar c) = (case f (c, false) of false => empty | true => insert_set c empty) |
+    collect_vars_aux f (SVar s) = (case f (s, true) of false => empty | true => insert_set s empty) |
+    collect_vars_aux _ IVar = empty
+
+fun collect_svars x = collect_vars_aux (fn (_, v) => v) x
+fun collect_cvars x = collect_vars_aux (fn (_, v) => not v) x
+fun collect_vars x = collect_vars_aux (fn _ => true) x
+
+fun promote_vars p expr =
+  let fun helper (UOp (n, e)) = UOp (n, helper e) |
+          helper (BOp (n, e, f)) = BOp (n, helper e, helper f) |
+          helper (CVar c) = p c |
+          helper (SVar s) = p s |
+          helper x = x
+   in helper expr
+end
+
+(* Given a set of names, let variables in the set be SVars and outside CVars *)
+fun promote_svars set = promote_vars (fn x => case Symtab.lookup set x of NONE => CVar x
+                                                                     | SOME _ => SVar x)
+
+fun demote_cvars set = promote_vars (fn x => case Symtab.lookup set x of NONE => SVar x
+                                                                     | SOME _ => CVar x)
+
+end
 
 fun parse_aexp xs =
   let open Parse
