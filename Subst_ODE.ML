@@ -31,6 +31,7 @@ fun Num t n =
 
 fun sexp_aexp (Const (@{const_name pi}, _)) = NConst @{const_name pi}
 | sexp_aexp (Const (@{const_name SEXP}, _) $ Abs (_, _, e)) = sexp_aexp e
+| sexp_aexp (Const (@{const_name SEXP}, _) $ (Const (@{const_name lens_get}, _) $ n)) = SVar (Term.term_name n)
 | sexp_aexp (Const (@{const_name lens_get}, _) $ n $ _) = SVar (Term.term_name n)
 | sexp_aexp (Const (@{const_name zero_class.zero}, t)) = Num t 0
 | sexp_aexp (Const (@{const_name one_class.one}, t)) = Num t 1
