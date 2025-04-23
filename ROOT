@@ -1,6 +1,6 @@
 session CAS_Integration = "Hybrid-Library" +
   options [document = false]
   sessions
-    "Shallow-Expressions"
+    "Shallow_Expressions"
   theories
     Subst_ODE

@@ -1,7 +1,7 @@
 section \<open> Substitutions as ODEs \<close>
 
 theory Subst_ODE
-  imports "Shallow-Expressions.Substitutions" "Hybrid-Library.Derivative_Lib"
+  imports "Shallow_Expressions.Substitutions" "Hybrid-Library.Derivative_Lib"
 begin
 
 ML_file \<open>Arith_Expr.ML\<close>
